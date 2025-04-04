@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 from logic import quiz_questions
 # Görev 7 - defaultdict komutunu içe aktar
+from collections import defaultdict
 from config import token
 
 intents = discord.Intents.default()
@@ -10,7 +11,7 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 
 user_responses = {}
 # Görev 8 - Kullanıcı puanlarını kaydetmek için puan sözlüğünü oluşturun
-
+points = defaultdict(int)
 
 async def send_question(ctx_or_interaction, user_id):
     question = quiz_questions[user_responses[user_id]]
@@ -41,6 +42,7 @@ async def on_interaction(interaction):
     if custom_id.startswith("correct"):
         await interaction.response.send_message("Doğru cevap!")
         # Görev 9 - Doğru cevap için kullanıcıya puan ekle
+        points[user_id] += 1
     elif custom_id.startswith("wrong"):
         await interaction.response.send_message("Yanlış cevap!")
 
@@ -49,6 +51,7 @@ async def on_interaction(interaction):
     # Görev 6 - kullanıcı tüm soruları yanıtladıysa sınav sonucuyla ilgili bir mesaj gönder. Aksi takdirde, bir sonraki soruyu gönder
     if user_responses[user_id] > len(quiz_questions) - 1:
         await interaction.followup.send("Sınav bitti!")
+        await interaction.followup.send(points[user_id])
     else:
         await send_question(interaction, user_id)
         
